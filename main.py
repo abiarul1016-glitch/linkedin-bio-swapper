@@ -68,18 +68,7 @@ def main():
             print("User is not logged in. Logging in...")
 
             # --- Login Implementation ---
-            page.goto(LINKEDIN_URL)
-            page.wait_for_timeout(3000)  # Wait for 3 seconds to allow the page to load.
-            page.get_by_role("button", name="Sign in").click()
-            page.get_by_role("textbox", name="Email or phone").click()
-            page.get_by_role("textbox", name="Email or phone").fill(EMAIL)
-            page.get_by_role("textbox", name="Password").click()
-            page.get_by_role("textbox", name="Password").fill(PASSWORD)
-            page.get_by_role("button", name="Sign in").click()
-            page.wait_for_timeout(5000)  # Wait for 5 seconds to allow login to process.
-
-            # Recheck if login was successful by looking for the 'Me' button again.
-            if not check_logged_in(page):
+            if not login(page):
                 print(
                     "Login failed. Please check your credentials and try again. Or login manually and save the browser state."
                 )
@@ -96,27 +85,8 @@ def main():
         else:
             print("User is already logged in. Proceeding to update bio...")
 
-        # 2. Edit the bio, with a random bio from the list of bios.
-        # Select the headline text box element.
-        headline = page.get_by_test_id(
-            "ui-core-tiptap-text-editor-wrapper"
-        ).get_by_role("textbox")
-
-        # Clear any existing content and fill it with a random bio.
-        headline.clear()
-        bio_choice = random.choice(BIO_LIST)
-        headline.fill(bio_choice)
-        print(f"Updated bio to: {bio_choice}")
-
-        # Linkedin forces you to input industry when changing the headline, so we need to select an industry as well.
-        # Locate and fill the required Industry field.
-        page.get_by_role("textbox", name="Industry*").click()
-        page.get_by_role("textbox", name="Industry*").fill("cooking 👨🏼‍🍳")
-
-        # 3. Save the changes.
-        # Locate and click the Save button.
-        save_button = page.get_by_role("button", name="Save")
-        save_button.click()
+        bio_choice = edit_bio(page, BIO_LIST)
+        print(f"Bio updated to: {bio_choice}")
 
         # Wait for a few seconds to allow the page to process the save action.
         page.wait_for_timeout(3000)
@@ -148,6 +118,69 @@ def check_logged_in(page):
         bool: True if the user is logged in, False otherwise.
     """
     return page.get_by_role("button", name="Me", exact=True).is_visible()
+
+
+def login(page):
+    """
+    Handle the login process to LinkedIn.
+
+    This function navigates to the LinkedIn login page, fills in the email and password fields with the provided credentials,
+    and submits the login form. It also includes error handling to check if the login was successful.
+
+    Returns:
+        bool: True if login was successful, False otherwise.
+    """
+    # Navigate to LinkedIn login page
+    page.goto(LINKEDIN_URL)
+    page.wait_for_timeout(3000)  # Wait for 3 seconds to allow the page to load.
+
+    # Click on the "Sign in" button to go to the login form
+    page.get_by_role("button", name="Sign in").click()
+
+    # Fill in the email and password fields
+    page.get_by_role("textbox", name="Email or phone").click()
+    page.get_by_role("textbox", name="Email or phone").fill(EMAIL)
+    page.get_by_role("textbox", name="Password").click()
+    page.get_by_role("textbox", name="Password").fill(PASSWORD)
+
+    # Click the "Sign in" button to submit the form
+    page.get_by_role("button", name="Sign in").click()
+    page.wait_for_timeout(5000)  # Wait for 5 seconds to allow login to process.
+
+    # Check if login was successful by looking for a specific element that indicates a logged-in state (e.g., 'Me' button).
+    return check_logged_in(page)
+
+
+def edit_bio(page, BIO_LIST):
+    """
+    Edit the LinkedIn bio with a random choice from the provided list of bios.
+
+    This function selects the headline text box, clears any existing content, and fills it with a randomly chosen bio from the BIO_LIST.
+    It also handles the required Industry field that LinkedIn mandates when changing the headline.
+
+    Args:
+        page: The Playwright page object representing the current browser page.
+        BIO_LIST: A list of bios to choose from for updating the LinkedIn profile.
+    """
+    # Select the headline text box element.
+    headline = page.get_by_test_id("ui-core-tiptap-text-editor-wrapper").get_by_role(
+        "textbox"
+    )
+
+    # Clear any existing content and fill it with a random bio.
+    headline.clear()
+    bio_choice = random.choice(BIO_LIST)
+    headline.fill(bio_choice)
+
+    # Locate and fill the required Industry field.
+    page.get_by_role("textbox", name="Industry*").click()
+    page.get_by_role("textbox", name="Industry*").fill("cooking 👨🏼‍🍳")
+
+    # Locate and click the Save button.
+    save_button = page.get_by_role("button", name="Save")
+    save_button.click()
+
+    return bio_choice  # Return the chosen bio for confirmation or logging purposes.
 
 
 if __name__ == "__main__":
