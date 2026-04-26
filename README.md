@@ -10,6 +10,8 @@ An automation script that randomly rotates your LinkedIn headline using a curate
 
 ---
 
+[![Demo](https://img.youtube.com/vi/Qaeou_8AotY/maxresdefault.jpg)](https://youtu.be/Qaeou_8AotY?t=146)
+
 ## Overview
 
 Stuck with the same stale Linkedin headline you've had since 2022? But you've always had so many good potential ones—you just ALWAYS forgot to change it?
