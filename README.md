@@ -4,6 +4,8 @@ An automation script that randomly rotates your LinkedIn headline using a curate
 
 ## Overview
 
+Stuck with the same stale Linkedin headline you've had since 2022? But you've always had so many good potential ones—you just ALWAYS forgot to change it?
+
 This tool uses [Playwright](https://playwright.dev/) to automate the process of updating your LinkedIn profile headline. It picks a random bio from `bios_list.txt` and updates it on your profile, handling authentication (login + session persistence) along the way.
 
 ## Features
@@ -13,6 +15,29 @@ This tool uses [Playwright](https://playwright.dev/) to automate the process of 
 - **Human verification** — asks for explicit confirmation before making changes
 - **Manual login fallback** — if auto-login fails, you get 40 seconds to log in manually
 - **Headed browser mode** — watch the automation happen in real-time (disable with `headless=True`)
+
+## How it works
+
+The script runs as a single-shot automation pipeline:
+
+1. Load bios from `bios_list.txt`
+2. Ask for user confirmation (`Type 'yes' to confirm`)
+3. Launch Chromium browser
+4. Check for saved browser state (session persistence)
+   - If state exists → load cookies, skip login
+   - If no state → perform login flow
+5. Navigate to LinkedIn profile edit page
+6. Pick a random bio and update the headline
+7. Save updated browser state for next run
+8. Close browser
+
+## Tech stack
+
+| Layer                  | Technology    | Purpose                                    |
+| ---------------------- | ------------- | ------------------------------------------ |
+| **Core Language**      | Python 3.12+  | Automation logic and credential management |
+| **Browser Automation** | Playwright    | Headed Chromium automation for LinkedIn    |
+| **Environment**        | python-dotenv | Loads credentials from `secrets.env`       |
 
 ## Prerequisites
 
@@ -67,20 +92,7 @@ This tool uses [Playwright](https://playwright.dev/) to automate the process of 
    python main.py
    ```
 
-## How It Works
-
-```
-1. Load bios from bios_list.txt
-2. Ask for user confirmation ("Type 'yes' to confirm")
-3. Launch Chromium browser
-4. Check for saved browser state (session persistence)
-   ├── If state exists → load cookies, skip login
-   └── If no state     → perform login flow
-5. Navigate to LinkedIn profile edit page
-6. Pick a random bio and update the headline
-7. Save updated browser state for next run
-8. Close browser
-```
+   _(Wait for the browser to open, confirm with `yes`, and watch the magic happen.)_
 
 ## Project Structure
 
